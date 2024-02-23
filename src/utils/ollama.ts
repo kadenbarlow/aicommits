@@ -15,5 +15,5 @@ export async function generateCommitMessage(
 			{ role: 'user', content: diff },
 		],
 	});
-	return [response.message.content];
+	return [response.message.content.trim()];
 }
