@@ -107,7 +107,7 @@ export default async (
 			message = selected as string;
 		}
 
-		await execa('git', ['commit', '-m', message, ...rawArgv]);
+		await execa('git', ['commit', '-m', message, '-e', ...rawArgv]);
 
 		outro(`${green('✔')} Successfully committed!`);
 	})().catch((error) => {
