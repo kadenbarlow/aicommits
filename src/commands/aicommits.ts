@@ -14,7 +14,7 @@ import {
 	getDetectedMessage,
 } from '../utils/git.js';
 import { getConfig } from '../utils/config.js';
-import { generateCommitMessage } from '../utils/openai.js';
+import { generateCommitMessage } from '../utils/ollama.js';
 import { KnownError, handleCliError } from '../utils/error.js';
 
 export default async (
@@ -22,7 +22,7 @@ export default async (
 	excludeFiles: string[],
 	stageAll: boolean,
 	commitType: string | undefined,
-	rawArgv: string[]
+	rawArgv: string[],
 ) =>
 	(async () => {
 		intro(bgCyan(black(' aicommits ')));
@@ -41,19 +41,18 @@ export default async (
 		if (!staged) {
 			detectingFiles.stop('Detecting staged files');
 			throw new KnownError(
-				'No staged changes found. Stage your changes manually, or automatically stage all changes with the `--all` flag.'
+				'No staged changes found. Stage your changes manually, or automatically stage all changes with the `--all` flag.',
 			);
 		}
 
 		detectingFiles.stop(
 			`${getDetectedMessage(staged.files)}:\n${staged.files
 				.map((file) => `     ${file}`)
-				.join('\n')}`
+				.join('\n')}`,
 		);
 
 		const { env } = process;
 		const config = await getConfig({
-			OPENAI_KEY: env.OPENAI_KEY || env.OPENAI_API_KEY,
 			proxy:
 				env.https_proxy || env.HTTPS_PROXY || env.http_proxy || env.HTTP_PROXY,
 			generate: generate?.toString(),
@@ -65,15 +64,15 @@ export default async (
 		let messages: string[];
 		try {
 			messages = await generateCommitMessage(
-				config.OPENAI_KEY,
-				config.model,
+				// config.OPENAI_KEY,
+				// config.model,
 				config.locale,
 				staged.diff,
-				config.generate,
+				// config.generate,
 				config['max-length'],
 				config.type,
-				config.timeout,
-				config.proxy
+				// config.timeout,
+				// config.proxy,
 			);
 		} finally {
 			s.stop('Changes analyzed');

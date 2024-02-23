@@ -21,17 +21,17 @@ const parseAssert = (name: string, condition: any, message: string) => {
 };
 
 const configParsers = {
-	OPENAI_KEY(key?: string) {
-		if (!key) {
-			throw new KnownError(
-				'Please set your OpenAI API key via `aicommits config set OPENAI_KEY=<your token>`'
-			);
-		}
-		parseAssert('OPENAI_KEY', key.startsWith('sk-'), 'Must start with "sk-"');
-		// Key can range from 43~51 characters. There's no spec to assert this.
+	// OPENAI_KEY(key?: string) {
+	// 	if (!key) {
+	// 		throw new KnownError(
+	// 			'Please set your OpenAI API key via `aicommits config set OPENAI_KEY=<your token>`'
+	// 		);
+	// 	}
+	// 	parseAssert('OPENAI_KEY', key.startsWith('sk-'), 'Must start with "sk-"');
+	// 	// Key can range from 43~51 characters. There's no spec to assert this.
 
-		return key;
-	},
+	// 	return key;
+	// },
 	locale(locale?: string) {
 		if (!locale) {
 			return 'en';
@@ -41,7 +41,7 @@ const configParsers = {
 		parseAssert(
 			'locale',
 			/^[a-z-]+$/i.test(locale),
-			'Must be a valid locale (letters and dashes/underscores). You can consult the list of codes in: https://wikipedia.org/wiki/List_of_ISO_639-1_codes'
+			'Must be a valid locale (letters and dashes/underscores). You can consult the list of codes in: https://wikipedia.org/wiki/List_of_ISO_639-1_codes',
 		);
 		return locale;
 	},
@@ -66,7 +66,7 @@ const configParsers = {
 		parseAssert(
 			'type',
 			commitTypes.includes(type as CommitType),
-			'Invalid commit type'
+			'Invalid commit type',
 		);
 
 		return type as CommitType;
@@ -110,7 +110,7 @@ const configParsers = {
 		parseAssert(
 			'max-length',
 			parsed >= 20,
-			'Must be greater than 20 characters'
+			'Must be greater than 20 characters',
 		);
 
 		return parsed;
@@ -141,7 +141,7 @@ const readConfigFile = async (): Promise<RawConfig> => {
 
 export const getConfig = async (
 	cliConfig?: RawConfig,
-	suppressErrors?: boolean
+	suppressErrors?: boolean,
 ): Promise<ValidConfig> => {
 	const config = await readConfigFile();
 	const parsedConfig: Record<string, unknown> = {};

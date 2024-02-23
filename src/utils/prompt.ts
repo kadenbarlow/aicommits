@@ -34,22 +34,22 @@ const commitTypes: Record<CommitType, string> = {
 			fix: 'A bug fix',
 		},
 		null,
-		2
+		2,
 	)}`,
 };
 
 export const generatePrompt = (
 	locale: string,
 	maxLength: number,
-	type: CommitType
+	type: CommitType,
 ) =>
 	[
-		'Generate a concise git commit message written in present tense for the following code diff with the given specifications below:',
+		'You generate a short one sentence git commit message in the imperative tense and nothing else.',
 		`Message language: ${locale}`,
-		`Commit message must be a maximum of ${maxLength} characters.`,
+		`The Commit message must be a maximum of one line and ${maxLength} characters or 15 words long and nothing more.`,
 		'Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.',
-		commitTypes[type],
-		specifyCommitFormat(type),
+		// commitTypes[type],
+		// specifyCommitFormat(type),
 	]
 		.filter(Boolean)
 		.join('\n');

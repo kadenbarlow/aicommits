@@ -1,10 +1,10 @@
-import fs from 'fs/promises';
 import { intro, outro, spinner } from '@clack/prompts';
 import { black, green, red, bgCyan } from 'kolorist';
 import { getStagedDiff } from '../utils/git.js';
 import { getConfig } from '../utils/config.js';
-import { generateCommitMessage } from '../utils/openai.js';
+import { generateCommitMessage } from '../utils/ollama.js';
 import { KnownError, handleCliError } from '../utils/error.js';
+import prependFile from 'prepend-file';
 
 const [messageFilePath, commitSource] = process.argv.slice(2);
 
@@ -12,7 +12,7 @@ export default () =>
 	(async () => {
 		if (!messageFilePath) {
 			throw new KnownError(
-				'Commit message file path is missing. This file should be called from the "prepare-commit-msg" git hook'
+				'Commit message file path is missing. This file should be called from the "prepare-commit-msg" git hook',
 			);
 		}
 
@@ -40,54 +40,21 @@ export default () =>
 		let messages: string[];
 		try {
 			messages = await generateCommitMessage(
-				config.OPENAI_KEY,
-				config.model,
+				// config.OPENAI_KEY,
+				// config.model,
 				config.locale,
 				staged!.diff,
-				config.generate,
+				// config.generate,
 				config['max-length'],
 				config.type,
-				config.timeout,
-				config.proxy
+				// config.timeout,
+				// config.proxy,
 			);
 		} finally {
 			s.stop('Changes analyzed');
 		}
 
-		/**
-		 * When `--no-edit` is passed in, the base commit message is empty,
-		 * and even when you use pass in comments via #, they are ignored.
-		 *
-		 * Note: `--no-edit` cannot be detected in argvs so this is the only way to check
-		 */
-		const baseMessage = await fs.readFile(messageFilePath, 'utf8');
-		const supportsComments = baseMessage !== '';
-		const hasMultipleMessages = messages.length > 1;
-
-		let instructions = '';
-
-		if (supportsComments) {
-			instructions = `# 🤖 AI generated commit${
-				hasMultipleMessages ? 's' : ''
-			}\n`;
-		}
-
-		if (hasMultipleMessages) {
-			if (supportsComments) {
-				instructions +=
-					'# Select one of the following messages by uncommeting:\n';
-			}
-			instructions += `\n${messages
-				.map((message) => `# ${message}`)
-				.join('\n')}`;
-		} else {
-			if (supportsComments) {
-				instructions += '# Edit the message below and commit:\n';
-			}
-			instructions += `\n${messages[0]}\n`;
-		}
-
-		await fs.appendFile(messageFilePath, instructions);
+		await prependFile(messageFilePath, messages[0]);
 		outro(`${green('✔')} Saved commit message!`);
 	})().catch((error) => {
 		outro(`${red('✖')} ${error.message}`);
