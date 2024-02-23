@@ -1,4 +1,5 @@
 import { execa } from 'execa';
+import { spawn } from 'child_process';
 import { black, dim, green, red, bgCyan } from 'kolorist';
 import {
 	intro,
@@ -107,9 +108,17 @@ export default async (
 			message = selected as string;
 		}
 
-		await execa('git', ['commit', '-m', message, '-e', ...rawArgv]);
-
-		outro(`${green('✔')} Successfully committed!`);
+		const child = spawn(
+			['git', 'commit', '-e', '-m', `"${message}"`, ...rawArgv].join(' '),
+			[],
+			{
+				stdio: 'inherit',
+				shell: true,
+			},
+		);
+		child.on('close', () => {
+			outro(`${green('✔')} Successfully committed!`);
+		});
 	})().catch((error) => {
 		outro(`${red('✖')} ${error.message}`);
 		handleCliError(error);
