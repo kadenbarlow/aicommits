@@ -26,31 +26,31 @@ export default async (
 	rawArgv: string[],
 ) =>
 	(async () => {
-		intro(bgCyan(black(' aicommits ')));
+		// intro(bgCyan(black(' aicommits ')));
 		await assertGitRepo();
 
-		const detectingFiles = spinner();
+		// const detectingFiles = spinner();
 
 		if (stageAll) {
 			// This should be equivalent behavior to `git commit --all`
 			await execa('git', ['add', '--update']);
 		}
 
-		detectingFiles.start('Detecting staged files');
+		// detectingFiles.start('Detecting staged files');
 		const staged = await getStagedDiff(excludeFiles);
 
 		if (!staged) {
-			detectingFiles.stop('Detecting staged files');
+			// detectingFiles.stop('Detecting staged files');
 			throw new KnownError(
 				'No staged changes found. Stage your changes manually, or automatically stage all changes with the `--all` flag.',
 			);
 		}
 
-		detectingFiles.stop(
-			`${getDetectedMessage(staged.files)}:\n${staged.files
-				.map((file) => `     ${file}`)
-				.join('\n')}`,
-		);
+		// detectingFiles.stop(
+		// 	`${getDetectedMessage(staged.files)}:\n${staged.files
+		// 		.map((file) => `     ${file}`)
+		// 		.join('\n')}`,
+		// );
 
 		const { env } = process;
 		const config = await getConfig({
@@ -60,8 +60,8 @@ export default async (
 			type: commitType?.toString(),
 		});
 
-		const s = spinner();
-		s.start('The AI is analyzing your changes');
+		// const s = spinner();
+		// s.start('The AI is analyzing your changes');
 		let messages: string[];
 		try {
 			messages = await generateCommitMessage(
@@ -76,7 +76,7 @@ export default async (
 				// config.proxy,
 			);
 		} finally {
-			s.stop('Changes analyzed');
+			// s.stop('Changes analyzed');
 		}
 
 		if (messages.length === 0) {
@@ -92,7 +92,7 @@ export default async (
 			},
 		);
 		child.on('close', () => {
-			outro(`${green('✔')} Successfully committed!`);
+			// outro(`${green('✔')} Successfully committed!`);
 		});
 	})().catch((error) => {
 		outro(`${red('✖')} ${error.message}`);
