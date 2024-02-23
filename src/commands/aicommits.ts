@@ -83,33 +83,8 @@ export default async (
 			throw new KnownError('No commit messages were generated. Try again.');
 		}
 
-		let message: string;
-		if (messages.length === 1) {
-			[message] = messages;
-			const confirmed = await confirm({
-				message: `Use this commit message?\n\n   ${message}\n`,
-			});
-
-			if (!confirmed || isCancel(confirmed)) {
-				outro('Commit cancelled');
-				return;
-			}
-		} else {
-			const selected = await select({
-				message: `Pick a commit message to use: ${dim('(Ctrl+c to exit)')}`,
-				options: messages.map((value) => ({ label: value, value })),
-			});
-
-			if (isCancel(selected)) {
-				outro('Commit cancelled');
-				return;
-			}
-
-			message = selected as string;
-		}
-
 		const child = spawn(
-			['git', 'commit', '-e', '-m', `"${message}"`, ...rawArgv].join(' '),
+			['git', 'commit', '-e', '-m', `"${messages[0]}"`, ...rawArgv].join(' '),
 			[],
 			{
 				stdio: 'inherit',
